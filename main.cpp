@@ -1,6 +1,6 @@
 #include "./include/glad/glad.h"
 #include <GL/gl.h>
-#include <GLFW/glfw3.h>
+#include "./include/GLFW/glfw3.h"
 #include <cstdlib>
 #include <fstream>
 #include <ios>
@@ -66,6 +66,7 @@ int main(void) {
 		std::exit(-1);
 	}
 
+	// Data about our triangle
 	float vertices[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
@@ -73,14 +74,23 @@ int main(void) {
 	};
 
 	unsigned int vbo_id, vao_id;
+	// Create a buffer and store it's id in vbo
 	glGenBuffers(1, &vbo_id);
+	// Create a vertex array object.
 	glGenVertexArrays(1, &vao_id);
 
+	// Bind the VAO currently
 	glBindVertexArray(vao_id);
+	// Bind the VBO to the VAO?
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+	// Bind the vertices data to the buffer
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	// Specifies the index and metadata about the data to be sent
+	// index, data per vertices, data type, normalize data, stride of data, offset
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+
+	// Specify the vertex attribute index
 	glEnableVertexAttribArray(0);
 
 	string vertex_shader_content = load_shader_file("./shaders/triangle.vert.glsl");
@@ -90,6 +100,7 @@ int main(void) {
 	const char* frag_shader = fragment_shader_content.c_str();
 
 	unsigned int vertex_shader_id;
+	// Create a vertex shader object and compile it
 	vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex_shader_id, 1, &vert_shader, NULL);
 	glCompileShader(vertex_shader_id);
@@ -97,6 +108,7 @@ int main(void) {
 	cout << "INFO: Compiled Vertex Shader\n";
 
 	unsigned int fragment_shader_id;
+	// Create a fragment shader object and compile it
 	fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragment_shader_id, 1, &frag_shader, NULL);
 	glCompileShader(fragment_shader_id);
@@ -104,11 +116,14 @@ int main(void) {
 	cout << "INFO: Compiled Fragment Shader\n";
 
 	unsigned int shader_prog_id;
+	// Create a shader program and attach the frag and vert shader
+	// and then link it together
 	shader_prog_id = glCreateProgram();
 	glAttachShader(shader_prog_id, vertex_shader_id);
 	glAttachShader(shader_prog_id, fragment_shader_id);
 	glLinkProgram(shader_prog_id);
 
+	// Delete it after linking
 	glDeleteShader(fragment_shader_id);
 	glDeleteShader(vertex_shader_id);
 
@@ -121,9 +136,12 @@ int main(void) {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Use the shader to draw the asset
 		glUseProgram(shader_prog_id);
 
+		// Use the vao object
 		glBindVertexArray(vao_id);
+		// Draw the vao object as arrays
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
